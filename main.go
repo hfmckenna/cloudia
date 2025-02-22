@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"net"
 )
 
 func main() {
@@ -11,4 +12,14 @@ func main() {
 	}
 	defer func() { _ = listener.Close() }()
 	log.Printf("listening on %q", listener.Addr())
+	for {
+		conn, err := listener.Accept()
+		if err != nil {
+			log.Fatal(err)
+		}
+		go func(c net.Conn) {
+			defer func() { _ = c.Close() }()
+			log.Printf("new connection from %q", c.RemoteAddr())
+		}(conn)
+	}
 }
